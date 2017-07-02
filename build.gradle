@@ -13,6 +13,11 @@ repositories {
 }
 
 dependencies {
+    // RxJava for reactive programming
+    compile group: 'io.reactivex.rxjava2', name: 'rxjava', version: '2.1.1'
+    // JCommander for parsing CLI arguments
+    compile group: 'com.beust', name: 'jcommander', version: '1.71'
+    // JUnit for test
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
