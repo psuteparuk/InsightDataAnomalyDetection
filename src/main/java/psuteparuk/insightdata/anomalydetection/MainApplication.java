@@ -1,26 +1,37 @@
 package psuteparuk.insightdata.anomalydetection;
 
 import io.reactivex.Observable;
+import io.reactivex.schedulers.Schedulers;
 import psuteparuk.insightdata.anomalydetection.common.Arguments;
-import psuteparuk.insightdata.anomalydetection.source.FileStreamEventSource;
+import psuteparuk.insightdata.anomalydetection.io.FileStreamEventSource;
+import psuteparuk.insightdata.anomalydetection.worker.BatchLogProcessor;
 
 public class MainApplication {
     public static void main(String[] args) {
         Arguments arguments = new Arguments(args);
 
-        final Observable<String> batchSource = Observable
+        final Observable<String> batchLogSource = Observable
             .defer(() -> new FileStreamEventSource(arguments.batchFilePath))
+            .subscribeOn(Schedulers.io())
             .replay(1)
             .refCount();
-        final Observable<String> streamSource = Observable
+        final Observable<String> streamLogSource = Observable
             .defer(() -> new FileStreamEventSource(arguments.streamFilePath))
+            .subscribeOn(Schedulers.io())
             .replay(1)
             .refCount();
 
-        batchSource.subscribe(
-            line -> System.out.println("HEY: " + line),
-            Throwable::printStackTrace,
-            () -> System.out.println("finished")
-        );
+        BatchLogProcessor batchLogProcessor = new BatchLogProcessor(batchLogSource);
+        batchLogProcessor.run();
+
+        sleep(3000);
+    }
+
+    private static void sleep(int millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -1,13 +1,12 @@
-package psuteparuk.insightdata.anomalydetection.source;
+package psuteparuk.insightdata.anomalydetection.io;
 
-import io.reactivex.ObservableSource;
 import io.reactivex.Observer;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-public class FileStreamEventSource implements ObservableSource<String> {
+public class FileStreamEventSource implements StreamEventSource<String> {
     private final String inputFilePath;
 
     public FileStreamEventSource(String inputFilePath) {
