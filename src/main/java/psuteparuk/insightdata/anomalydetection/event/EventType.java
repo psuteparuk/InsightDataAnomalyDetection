@@ -1,4 +1,4 @@
-package psuteparuk.insightdata.anomalydetection.common;
+package psuteparuk.insightdata.anomalydetection.event;
 
 public enum EventType {
     PURCHASE("purchase"),

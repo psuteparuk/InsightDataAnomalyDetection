@@ -1,26 +1,45 @@
 package psuteparuk.insightdata.anomalydetection.worker;
 
 import io.reactivex.Observable;
-import psuteparuk.insightdata.anomalydetection.common.*;
+import io.reactivex.Scheduler;
+import psuteparuk.insightdata.anomalydetection.event.EventEntry;
+import psuteparuk.insightdata.anomalydetection.event.EventType;
+import psuteparuk.insightdata.anomalydetection.network.PurchaseData;
+import psuteparuk.insightdata.anomalydetection.network.UserNetwork;
 
 import java.util.Comparator;
 
 public class BatchLogProcessor extends LogProcessor {
-    final UserNetwork userNetwork;
+    final private UserNetwork userNetwork;
 
     public BatchLogProcessor(
         Observable<String> batchLogSource,
+        Scheduler scheduler,
         UserNetwork userNetwork
     ) {
-        super(batchLogSource);
+        super(batchLogSource, scheduler);
         this.userNetwork = userNetwork;
     }
 
     @Override
     public void run() {
+        setNetworkParameters();
+        processPurchaseEvents();
+        processRelationshipEvents();
+    }
+
+    private void setNetworkParameters() {
+        getNetworkParametersSource()
+            .subscribe((networkParameters) -> {
+                this.userNetwork.setDepthDegree(networkParameters.getDepthDegree());
+                this.userNetwork.setTrackedNumber(networkParameters.getTrackedNumber());
+            });
+    }
+
+    private void processPurchaseEvents() {
         getEntrySource()
             .filter((entry) -> entry.getEventType() == EventType.PURCHASE)
-            .groupBy((entry) -> entry.getBuyerId())
+            .groupBy(EventEntry::getBuyerId)
             .flatMap((userPurchases$) -> userPurchases$
                 .toSortedList(Comparator.comparing(EventEntry::getTimestamp))
                 .toObservable()
@@ -28,23 +47,20 @@ public class BatchLogProcessor extends LogProcessor {
             .subscribe(
                 (sortedUserPurchases) -> {
                     String buyerId = sortedUserPurchases.get(0).getBuyerId();
-                    UserData buyerData = (this.userNetwork.contains(buyerId))
-                        ? this.userNetwork.getData(buyerId)
-                        : this.userNetwork.initializeData(buyerId);
-
                     sortedUserPurchases.forEach((purchaseEntry) -> {
                         PurchaseData purchaseData = PurchaseData.create(
                             purchaseEntry.getAmount(),
                             purchaseEntry.getTimestamp()
                         );
-                        buyerData.addPurchase(purchaseData);
-                        this.userNetwork.putNode(buyerId, buyerData);
+                        this.userNetwork.addPurchase(buyerId, purchaseData);
                     });
                 },
                 Throwable::printStackTrace,
                 () -> System.out.println("Finish purchase batch process.")
             );
+    }
 
+    private void processRelationshipEvents() {
         getEntrySource()
             .filter((entry) -> entry.getEventType() == EventType.BEFRIEND || entry.getEventType() == EventType.UNFRIEND)
             .toSortedList(Comparator.comparing(EventEntry::getTimestamp))

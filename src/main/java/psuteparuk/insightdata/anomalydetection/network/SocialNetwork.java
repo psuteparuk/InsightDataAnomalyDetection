@@ -1,9 +1,14 @@
-package psuteparuk.insightdata.anomalydetection.common;
+package psuteparuk.insightdata.anomalydetection.network;
 
-import java.util.*;
+import psuteparuk.insightdata.anomalydetection.common.GraphNode;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
 public class SocialNetwork<T> {
-    private Map<String, Node<T>> nodeIdMap;
+    private Map<String, GraphNode<T>> nodeIdMap;
 
     public SocialNetwork() {
         this.nodeIdMap = new HashMap<>();
@@ -22,8 +27,11 @@ public class SocialNetwork<T> {
     }
 
     public void putNode(String nodeId, T nodeData) {
-        this.nodeIdMap
-            .put(nodeId, new Node<>(nodeId, nodeData));
+        if (this.contains(nodeId)) {
+            this.getNode(nodeId).setData(nodeData);
+        } else {
+            this.nodeIdMap.put(nodeId, new GraphNode<>(nodeId, nodeData));
+        }
     }
 
     public void befriend(String nodeId1, String nodeId2) {
@@ -38,10 +46,8 @@ public class SocialNetwork<T> {
     }
 
     public void unfriend(String nodeId1, String nodeId2) {
-        if (this.contains(nodeId1)) {
+        if (this.contains(nodeId1) && this.contains(nodeId2)) {
             this.getNode(nodeId1).removeNeighbor(nodeId2);
-        }
-        if (this.contains(nodeId2)) {
             this.getNode(nodeId2).removeNeighbor(nodeId1);
         }
     }
@@ -50,47 +56,11 @@ public class SocialNetwork<T> {
         return null;
     }
 
-    private Node<T> getNode(String nodeId) throws NoSuchElementException {
+    private GraphNode<T> getNode(String nodeId) throws NoSuchElementException {
         if (this.contains(nodeId)) {
             return this.nodeIdMap.get(nodeId);
         } else {
             throw new NoSuchElementException("No such node found");
-        }
-    }
-
-    private static class Node<T> {
-        final private String id;
-        private T data;
-        private Set<String> neighborIds;
-
-        public Node(String id, T data) {
-            this.id = id;
-            this.data = data;
-            this.neighborIds = new HashSet<>();
-        }
-
-        public String getId() {
-            return this.id;
-        }
-
-        public T getData() {
-            return this.data;
-        }
-
-        public void setData(T newData) {
-            this.data = newData;
-        }
-
-        public Set<String> getNeighborIds() {
-            return this.neighborIds;
-        }
-
-        public void addNeighbor(String neighborId) {
-            this.neighborIds.add(neighborId);
-        }
-
-        public void removeNeighbor(String neighborId) {
-            this.neighborIds.remove(neighborId);
         }
     }
 }

@@ -1,44 +1,43 @@
 package psuteparuk.insightdata.anomalydetection.worker;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.reactivex.Observable;
-import io.reactivex.functions.Action;
-import io.reactivex.schedulers.Schedulers;
+import io.reactivex.Scheduler;
 import io.reactivex.subjects.ReplaySubject;
 import io.reactivex.subjects.Subject;
-import psuteparuk.insightdata.anomalydetection.common.EventEntry;
-import psuteparuk.insightdata.anomalydetection.common.NetworkParameters;
+import psuteparuk.insightdata.anomalydetection.event.EventEntry;
+import psuteparuk.insightdata.anomalydetection.event.EventType;
+import psuteparuk.insightdata.anomalydetection.network.NetworkParameters;
 
 import java.util.Objects;
 
-abstract class LogProcessor implements Action {
-    private final Observable<String> logSource;
+abstract class LogProcessor implements Runnable {
+    protected final Observable<String> logSource;
+    protected final Scheduler scheduler;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    LogProcessor(Observable<String> logSource) {
+    LogProcessor(Observable<String> logSource, Scheduler scheduler) {
         this.logSource = logSource;
+        this.scheduler = scheduler;
         this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    }
-
-    Observable<String> getLogSource() {
-        return this.logSource;
     }
 
     Observable<EventEntry> getEntrySource() {
         final Subject<EventEntry> eventEntrySource = ReplaySubject.create();
 
         logSource
-            .observeOn(Schedulers.computation())
+            .observeOn(this.scheduler)
             .map((entry) -> {
                 try {
                     return objectMapper.readValue(entry, EventEntry.class);
-                } catch (JsonMappingException e) {
-                    return null;
+                } catch (JsonMappingException | JsonParseException e) {
+                    return new EventEntry(EventType.INVALID.toString(), null, null, null, null, null);
                 }
             })
-            .filter(Objects::nonNull)
+            .filter((entry) -> entry.getEventType() != EventType.INVALID)
             .subscribe(eventEntrySource);
 
         return eventEntrySource;
@@ -48,12 +47,12 @@ abstract class LogProcessor implements Action {
         final Subject<NetworkParameters> networkParametersSource = ReplaySubject.create();
 
         logSource
-            .observeOn(Schedulers.computation())
+            .observeOn(this.scheduler)
             .map((entry) -> {
                 try {
                     return objectMapper.readValue(entry, NetworkParameters.class);
-                } catch (JsonMappingException e) {
-                    return null;
+                } catch (JsonMappingException | JsonParseException e) {
+                    return new NetworkParameters(null, null);
                 }
             })
             .filter((param) -> Objects.nonNull(param.getDepthDegree()) && Objects.nonNull(param.getTrackedNumber()))

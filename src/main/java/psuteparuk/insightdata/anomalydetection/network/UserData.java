@@ -1,4 +1,6 @@
-package psuteparuk.insightdata.anomalydetection.common;
+package psuteparuk.insightdata.anomalydetection.network;
+
+import psuteparuk.insightdata.anomalydetection.network.PurchaseData;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -16,6 +18,10 @@ public class UserData {
 
     public String getId() {
         return this.id;
+    }
+
+    public Deque<PurchaseData> getLatestPurchases() {
+        return this.latestPurchases;
     }
 
     public void addPurchase(PurchaseData purchaseData) {

@@ -1,17 +1,20 @@
 package psuteparuk.insightdata.anomalydetection;
 
 import io.reactivex.Observable;
+import io.reactivex.Scheduler;
 import io.reactivex.schedulers.Schedulers;
 import psuteparuk.insightdata.anomalydetection.common.Arguments;
-import psuteparuk.insightdata.anomalydetection.common.UserNetwork;
 import psuteparuk.insightdata.anomalydetection.io.FileStreamEventSource;
+import psuteparuk.insightdata.anomalydetection.network.UserNetwork;
 import psuteparuk.insightdata.anomalydetection.worker.BatchLogProcessor;
+import psuteparuk.insightdata.anomalydetection.worker.StreamLogProcessor;
+
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class MainApplication {
     public static void main(String[] args) {
         Arguments arguments = new Arguments(args);
-
-        UserNetwork userNetwork = new UserNetwork();
 
         final Observable<String> batchLogSource = Observable
             .defer(() -> new FileStreamEventSource(arguments.batchFilePath))
@@ -24,20 +27,17 @@ public class MainApplication {
             .replay(1)
             .refCount();
 
-        BatchLogProcessor batchLogProcessor = new BatchLogProcessor(batchLogSource, userNetwork);
+        UserNetwork userNetwork = new UserNetwork();
+
+        final Executor logProcessorThreadExecutor = Executors.newSingleThreadExecutor();
+        Scheduler logProcessorScheduler = Schedulers.from(logProcessorThreadExecutor);
+
+        BatchLogProcessor batchLogProcessor = new BatchLogProcessor(batchLogSource, logProcessorScheduler, userNetwork);
         batchLogProcessor.run();
 
-//        StreamLogProcessor streamLogProcessor = new StreamLogProcessor(streamLogSource, userNetwork);
-//        streamLogProcessor.run();
+        StreamLogProcessor streamLogProcessor = new StreamLogProcessor(streamLogSource, logProcessorScheduler, userNetwork);
+        streamLogProcessor.run();
 
-        sleep(3000);
-    }
-
-    private static void sleep(int millis) {
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        logProcessorScheduler.shutdown();
     }
 }
