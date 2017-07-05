@@ -1,6 +1,5 @@
 package psuteparuk.insightdata.anomalydetection.network;
 
-import psuteparuk.insightdata.anomalydetection.common.GroupStats;
 import psuteparuk.insightdata.anomalydetection.common.SinglyLinkedNode;
 
 import java.util.*;
@@ -138,29 +137,43 @@ public class UserNetwork extends SocialNetwork<UserData> {
     private Set<String> getDepthGroup(String userId) {
         Set<String> depthGroup = new HashSet<>();
 
-        // keep tracked of visisted node
+        // keep tracked of visited node
         Map<String, Boolean> isVisited = new HashMap<>();
         // queue in neighbors that need to be visited next
         Deque<String> toVisitIds = new ArrayDeque<>();
 
+        // We put null at the end of each level to keep track of how deep we are
+        final String END_OF_LEVEL = "END_OF_LEVEL";
+
         // put the current user node as a start node
         isVisited.put(userId, true);
-        toVisitIds.push(userId);
+        toVisitIds.add(userId);
+        toVisitIds.add(END_OF_LEVEL);
 
         // we consider only nodes that are no more than {@depthDegree} levels deep
-        for (int depth = 0; depth < this.depthDegree; ++depth) {
-            if (toVisitIds.isEmpty()) {
-                break;
+        int depth = 0;
+        boolean isPreviousEndOfLevel = false;
+        while (!toVisitIds.isEmpty() && depth <= this.depthDegree) {
+            String currentNodeId = toVisitIds.poll();
+
+            // We reach the end of a level. Continue onto the next level.
+            if (currentNodeId.equals(END_OF_LEVEL)) {
+                if (isPreviousEndOfLevel) { // We reach the end of the queue
+                    break;
+                }
+                depth++;
+                isPreviousEndOfLevel = true;
+                toVisitIds.add(END_OF_LEVEL);
+                continue;
             }
 
-            String currentNodeId = toVisitIds.poll();
             final int currentDepth = depth;
             this.getFriends(currentNodeId).forEach((friendId) -> {
                 // If an unvisited node is found, push it into the return set
                 if (!isVisited.containsKey(friendId) || !isVisited.get(friendId)) {
                     isVisited.put(friendId, true);
                     depthGroup.add(friendId);
-                    if (currentDepth != this.depthDegree - 1) {
+                    if (currentDepth != this.depthDegree) {
                         toVisitIds.add(friendId);
                     }
                 }

@@ -5,7 +5,7 @@ import io.reactivex.Scheduler;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
-import psuteparuk.insightdata.anomalydetection.common.GroupStats;
+import psuteparuk.insightdata.anomalydetection.network.GroupStats;
 import psuteparuk.insightdata.anomalydetection.event.EventEntry;
 import psuteparuk.insightdata.anomalydetection.io.FileEventWriter;
 import psuteparuk.insightdata.anomalydetection.network.PurchaseData;

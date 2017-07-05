@@ -1,4 +1,4 @@
-package psuteparuk.insightdata.anomalydetection.common;
+package psuteparuk.insightdata.anomalydetection.network;
 
 import com.google.auto.value.AutoValue;
 
