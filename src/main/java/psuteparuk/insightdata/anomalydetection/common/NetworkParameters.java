@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class NetworkParameters {
-    public Integer depthDegree;
-    public Integer trackedNumber;
+    private Integer depthDegree;
+    private Integer trackedNumber;
 
     @JsonCreator
     public NetworkParameters(
@@ -19,5 +19,13 @@ public class NetworkParameters {
             this.depthDegree = null;
             this.trackedNumber = null;
         }
+    }
+
+    public Integer getDepthDegree() {
+        return depthDegree;
+    }
+
+    public Integer getTrackedNumber() {
+        return trackedNumber;
     }
 }

@@ -26,17 +26,22 @@ repositories {
 dependencies {
     // RxJava for reactive programming
     compile group: 'io.reactivex.rxjava2', name: 'rxjava', version: '2.1.1'
+
     // JCommander for parsing CLI arguments
     compile group: 'com.beust', name: 'jcommander', version: '1.71'
+
     // AutoValue annotation processor for immutable value classes
     compileOnly group: 'com.google.auto.value', name: 'auto-value', version: '1.2'
     apt group: 'com.google.auto.value', name: 'auto-value', version: '1.2'
+
     // Additional data structure
     compile group: 'com.google.guava', name: 'guava', version: '22.0'
+
     // JSON and Object mapper
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.8.9'
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.8.9'
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.8.9'
+
     // JUnit for test
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }

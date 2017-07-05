@@ -8,12 +8,12 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class EventEntry {
-    public EventType eventType;
-    public Date timestamp;
-    public Double amount;
-    public String buyerId;
-    public String user1Id;
-    public String user2Id;
+    private EventType eventType;
+    private Date timestamp;
+    private Double amount;
+    private String buyerId;
+    private String user1Id;
+    private String user2Id;
 
     final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 
@@ -32,6 +32,30 @@ public class EventEntry {
         this.buyerId = idRaw;
         this.user1Id = id1Raw;
         this.user2Id = id2Raw;
+    }
+
+    public EventType getEventType() {
+        return eventType;
+    }
+
+    public Date getTimestamp() {
+        return timestamp;
+    }
+
+    public Double getAmount() {
+        return amount;
+    }
+
+    public String getBuyerId() {
+        return buyerId;
+    }
+
+    public String getUser1Id() {
+        return user1Id;
+    }
+
+    public String getUser2Id() {
+        return user2Id;
     }
 
     private EventType parseEventType(String eventTypeRaw) {

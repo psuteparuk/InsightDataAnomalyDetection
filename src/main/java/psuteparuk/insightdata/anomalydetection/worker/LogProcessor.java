@@ -56,7 +56,7 @@ abstract class LogProcessor implements Action {
                     return null;
                 }
             })
-            .filter((param) -> Objects.nonNull(param.depthDegree) && Objects.nonNull(param.trackedNumber))
+            .filter((param) -> Objects.nonNull(param.getDepthDegree()) && Objects.nonNull(param.getTrackedNumber()))
             .subscribe(networkParametersSource);
 
         return networkParametersSource.take(1);
