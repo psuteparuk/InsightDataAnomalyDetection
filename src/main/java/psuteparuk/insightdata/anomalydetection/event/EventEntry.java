@@ -14,6 +14,7 @@ public class EventEntry {
     private String buyerId;
     private String user1Id;
     private String user2Id;
+    private String originalMessage;
 
     final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 
@@ -56,6 +57,14 @@ public class EventEntry {
 
     public String getUser2Id() {
         return user2Id;
+    }
+
+    public String getOriginalMessage() {
+        return originalMessage;
+    }
+
+    public void setOriginalMessage(String message) {
+        originalMessage = message;
     }
 
     private EventType parseEventType(String eventTypeRaw) {

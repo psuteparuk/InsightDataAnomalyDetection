@@ -49,6 +49,12 @@ function setup_testing_input_output {
   cp -r ${PROJECT_PATH}/log_input ${TEST_OUTPUT_PATH}
   cp -r ${PROJECT_PATH}/log_output ${TEST_OUTPUT_PATH}
 
+  cp -r ${PROJECT_PATH}/gradle ${TEST_OUTPUT_PATH}
+  cp -r ${PROJECT_PATH}/gradlew ${TEST_OUTPUT_PATH}
+  cp -r ${PROJECT_PATH}/gradlew.bat ${TEST_OUTPUT_PATH}
+  cp -r ${PROJECT_PATH}/build.gradle ${TEST_OUTPUT_PATH}
+  cp -r ${PROJECT_PATH}/settings.gradle ${TEST_OUTPUT_PATH}
+
   rm -r ${TEST_OUTPUT_PATH}/log_input/*
   rm -r ${TEST_OUTPUT_PATH}/log_output/*
   cp -r ${GRADER_ROOT}/tests/${test_folder}/log_input/batch_log.json ${TEST_OUTPUT_PATH}/log_input/batch_log.json

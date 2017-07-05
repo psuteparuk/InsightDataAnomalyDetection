@@ -4,6 +4,7 @@ import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.schedulers.Schedulers;
 import psuteparuk.insightdata.anomalydetection.common.Arguments;
+import psuteparuk.insightdata.anomalydetection.io.FileEventWriter;
 import psuteparuk.insightdata.anomalydetection.io.FileStreamEventSource;
 import psuteparuk.insightdata.anomalydetection.network.UserNetwork;
 import psuteparuk.insightdata.anomalydetection.worker.BatchLogProcessor;
@@ -16,6 +17,7 @@ public class MainApplication {
     public static void main(String[] args) {
         Arguments arguments = new Arguments(args);
 
+        // Input
         final Observable<String> batchLogSource = Observable
             .defer(() -> new FileStreamEventSource(arguments.batchFilePath))
             .subscribeOn(Schedulers.io())
@@ -27,15 +29,27 @@ public class MainApplication {
             .replay(1)
             .refCount();
 
+        // Output
+        FileEventWriter fileEventWriter = new FileEventWriter(arguments.flaggedFilePath);
+
         UserNetwork userNetwork = new UserNetwork();
 
         final Executor logProcessorThreadExecutor = Executors.newSingleThreadExecutor();
         Scheduler logProcessorScheduler = Schedulers.from(logProcessorThreadExecutor);
 
-        BatchLogProcessor batchLogProcessor = new BatchLogProcessor(batchLogSource, logProcessorScheduler, userNetwork);
+        BatchLogProcessor batchLogProcessor = new BatchLogProcessor(
+            batchLogSource,
+            logProcessorScheduler,
+            userNetwork
+        );
         batchLogProcessor.run();
 
-        StreamLogProcessor streamLogProcessor = new StreamLogProcessor(streamLogSource, logProcessorScheduler, userNetwork);
+        StreamLogProcessor streamLogProcessor = new StreamLogProcessor(
+            streamLogSource,
+            fileEventWriter,
+            logProcessorScheduler,
+            userNetwork
+        );
         streamLogProcessor.run();
 
         logProcessorScheduler.shutdown();

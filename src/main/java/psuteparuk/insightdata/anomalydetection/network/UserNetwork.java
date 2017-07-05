@@ -1,5 +1,6 @@
 package psuteparuk.insightdata.anomalydetection.network;
 
+import psuteparuk.insightdata.anomalydetection.common.GroupStats;
 import psuteparuk.insightdata.anomalydetection.common.SinglyLinkedNode;
 
 import java.util.*;
@@ -21,11 +22,8 @@ public class UserNetwork extends SocialNetwork<UserData> {
         return new UserData(userId, this.trackedNumber);
     }
 
-    public boolean isPurchaseAnomaly(String userId, PurchaseData purchaseData) {
-        List<PurchaseData> groupLatestPurchases = this.getGroupLatestPurchases(userId);
-        double mean = PurchaseData.calculateMean(groupLatestPurchases);
-        double sd = PurchaseData.calculateStandardDeviation(groupLatestPurchases);
-        return purchaseData.amount() > anomalyThreshold(mean, sd);
+    public boolean isPurchaseAnomaly(PurchaseData purchaseData, GroupStats groupStats) {
+        return purchaseData.amount() > groupStats.anomalyThreshold();
     }
 
     public void addPurchase(String userId, PurchaseData purchaseData) {
@@ -34,7 +32,14 @@ public class UserNetwork extends SocialNetwork<UserData> {
         this.putNode(userId, userData);
     }
 
-    public List<PurchaseData> getGroupLatestPurchases(String userId) {
+    public GroupStats calculateGroupStats(String userId) {
+        List<PurchaseData> groupLatestPurchases = this.getGroupLatestPurchases(userId);
+        double mean = PurchaseData.calculateMean(groupLatestPurchases);
+        double sd = PurchaseData.calculateStandardDeviation(groupLatestPurchases);
+        return GroupStats.create(mean, sd);
+    }
+
+    private List<PurchaseData> getGroupLatestPurchases(String userId) {
         List<PurchaseData> groupLatestPurchases = new ArrayList<>(this.trackedNumber);
 
         Set<String> depthGroup = this.getDepthGroup(userId);
@@ -96,9 +101,5 @@ public class UserNetwork extends SocialNetwork<UserData> {
         }
 
         return depthGroup;
-    }
-
-    private static double anomalyThreshold(double mean, double sd) {
-        return mean + 3.0 * sd;
     }
 }

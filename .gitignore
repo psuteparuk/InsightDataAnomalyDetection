@@ -9,6 +9,8 @@
 
 # Gradle:
 .gradle
+# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
+!gradle-wrapper.jar
 
 ## File-based project format:
 *.iws
@@ -26,3 +28,7 @@
 /build
 /captures
 .externalNativeBuild
+
+# Test suites
+/insight_testsuite/temp
+/insight_testsuite/results.txt

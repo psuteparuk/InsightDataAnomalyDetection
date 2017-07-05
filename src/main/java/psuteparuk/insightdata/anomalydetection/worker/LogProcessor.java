@@ -17,7 +17,7 @@ import java.util.Objects;
 abstract class LogProcessor implements Runnable {
     protected final Observable<String> logSource;
     protected final Scheduler scheduler;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    protected final ObjectMapper objectMapper = new ObjectMapper();
 
     LogProcessor(Observable<String> logSource, Scheduler scheduler) {
         this.logSource = logSource;
@@ -32,7 +32,11 @@ abstract class LogProcessor implements Runnable {
             .observeOn(this.scheduler)
             .map((entry) -> {
                 try {
-                    return objectMapper.readValue(entry, EventEntry.class);
+                    EventEntry eventEntry = objectMapper.readValue(entry, EventEntry.class);
+                    if (eventEntry != null && eventEntry.getEventType() != EventType.INVALID) {
+                        eventEntry.setOriginalMessage(entry);
+                    }
+                    return eventEntry;
                 } catch (JsonMappingException | JsonParseException e) {
                     return new EventEntry(EventType.INVALID.toString(), null, null, null, null, null);
                 }
