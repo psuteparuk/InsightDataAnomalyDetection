@@ -4,6 +4,12 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 
+/**
+ * Handle CLI arguments using JCommander
+ * There are three required arguments
+ *  --batch, --stream, and --flagged
+ * that specify the input and output files.
+ */
 public class Arguments {
     @Parameter(
         names = { "--batch" },

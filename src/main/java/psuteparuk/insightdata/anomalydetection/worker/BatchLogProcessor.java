@@ -9,6 +9,16 @@ import psuteparuk.insightdata.anomalydetection.network.UserNetwork;
 
 import java.util.Comparator;
 
+/**
+ * Process the batch log.
+ * The caveat here is that the events in the batch log may not be in the right order.
+ * The good thing is that in the real world, batch computation is not latency sensitive.
+ * We can afford to first sort the list and then treat it as a stream log.
+ *
+ * The purchase event and befriend/unfriend events can be processed separately
+ * since we keep no inter-node information apart from their "friend" relationship.
+ * In fact, we can run both transformation on different threads.
+ */
 public class BatchLogProcessor extends LogProcessor {
     final private UserNetwork userNetwork;
 
@@ -28,6 +38,9 @@ public class BatchLogProcessor extends LogProcessor {
         processRelationshipEvents();
     }
 
+    /**
+     * Update the User Network parameters states
+     */
     private void setNetworkParameters() {
         getNetworkParametersSource()
             .subscribe((networkParameters) -> {
@@ -36,6 +49,12 @@ public class BatchLogProcessor extends LogProcessor {
             });
     }
 
+    /**
+     * Purchases in batch log may not come in a timestamp-order manner.
+     * To address this problem, we will group the purchase events by user ids,
+     * and sort the events by timestamp. We can then add each purchase to
+     * the network and keeping only the latest ones.
+     */
     private void processPurchaseEvents() {
         getEntrySource()
             .filter((entry) -> entry.getEventType() == EventType.PURCHASE)
@@ -60,6 +79,12 @@ public class BatchLogProcessor extends LogProcessor {
             );
     }
 
+    /**
+     * Relationship events can be processed independently from the purchase events.
+     * We keep only local node information in the user network from the batch computation.
+     * Here also, we sort the events by timestamp first and then update the relationship
+     * in the network event by event.
+     */
     private void processRelationshipEvents() {
         getEntrySource()
             .filter((entry) -> entry.getEventType() == EventType.BEFRIEND || entry.getEventType() == EventType.UNFRIEND)

@@ -7,6 +7,14 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+/**
+ * A generic graph representing a social network.
+ * Contain methods such as getFriends, befriend, unfriend.
+ * The underlying data structure uses a HashMap to map an ID
+ * to the corresponding GraphNode. Each GraphNode then stores
+ * a set of its friends' IDs.
+ * @param <T>
+ */
 public class SocialNetwork<T> {
     private Map<String, GraphNode<T>> nodeIdMap;
 
@@ -22,10 +30,20 @@ public class SocialNetwork<T> {
         return this.getNode(nodeId).getData();
     }
 
+    /**
+     * @param nodeId
+     * @return the set of friends' IDs
+     */
     public Set<String> getFriends(String nodeId) throws NoSuchElementException {
         return this.getNode(nodeId).getNeighborIds();
     }
 
+    /**
+     * Update the node ID {@nodeId} with the new data.
+     * Create a new node with the specified ID if there's none existed.
+     * @param nodeId
+     * @param nodeData
+     */
     public void putNode(String nodeId, T nodeData) {
         if (this.contains(nodeId)) {
             this.getNode(nodeId).setData(nodeData);
@@ -34,6 +52,11 @@ public class SocialNetwork<T> {
         }
     }
 
+    /**
+     * Connect two nodes
+     * @param nodeId1
+     * @param nodeId2
+     */
     public void befriend(String nodeId1, String nodeId2) {
         if (!this.contains(nodeId1)) {
             this.putNode(nodeId1, this.initializeData(nodeId1));
@@ -45,6 +68,11 @@ public class SocialNetwork<T> {
         this.getNode(nodeId2).addNeighbor(nodeId1);
     }
 
+    /**
+     * Disconnect two nodes
+     * @param nodeId1
+     * @param nodeId2
+     */
     public void unfriend(String nodeId1, String nodeId2) {
         if (this.contains(nodeId1) && this.contains(nodeId2)) {
             this.getNode(nodeId1).removeNeighbor(nodeId2);
@@ -52,6 +80,10 @@ public class SocialNetwork<T> {
         }
     }
 
+    /**
+     * Specify the initialization of the node data
+     * @param nodeId
+     */
     public T initializeData(String nodeId) {
         return null;
     }

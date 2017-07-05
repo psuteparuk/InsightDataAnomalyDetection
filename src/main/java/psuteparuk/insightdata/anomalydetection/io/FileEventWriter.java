@@ -11,22 +11,34 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.StandardOpenOption.APPEND;
 import static java.nio.file.StandardOpenOption.CREATE;
 
+/**
+ * A file writer engine that appends new content to the specified output file.
+ * It clears the previous content in the constructor.
+ */
 public class FileEventWriter {
     final private String outputFilePath;
 
+    /**
+     * Assign output file and clear the content right away.
+     * @param outputFilePath
+     */
     public FileEventWriter(String outputFilePath) {
         this.outputFilePath = outputFilePath;
         this.clearFile();
     }
 
+    /**
+     * Opens an io connection and append {@message} to the output file.
+     * @param message
+     */
     public void write(String message) {
         try {
             Files.write(
                 Paths.get(this.outputFilePath),
                 Collections.singletonList(message),
                 UTF_8,
-                APPEND,
-                CREATE
+                APPEND, // Append new content
+                CREATE // If the output file is not found, create a new one.
             );
         } catch (IOException e) {
             System.out.println("Cannot write to file. Please make sure the output folder exists.");
@@ -34,6 +46,9 @@ public class FileEventWriter {
         }
     }
 
+    /**
+     * Clear the content of the output file.
+     */
     private void clearFile() {
         try {
             FileWriter fileWriter = new FileWriter(this.outputFilePath, false);

@@ -7,6 +7,11 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/**
+ * An object representation of events read from a json input.
+ * Convert the type to an {EventType} enum.
+ * Also store the original string representation {@originalMessage}.
+ */
 public class EventEntry {
     private EventType eventType;
     private Date timestamp;

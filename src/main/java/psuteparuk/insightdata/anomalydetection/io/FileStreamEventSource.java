@@ -7,6 +7,10 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
 
+/**
+ * An event source from a file stream represented as an Observable.
+ * Read lines from {@inputFilePath File} and push them onto an observer via the subscribe method.
+ */
 public class FileStreamEventSource implements StreamEventSource<String> {
     private final String inputFilePath;
 
@@ -14,6 +18,10 @@ public class FileStreamEventSource implements StreamEventSource<String> {
         this.inputFilePath = inputFilePath;
     }
 
+    /**
+     * Push lines from file onto {@observer}
+     * @param observer
+     */
     @Override
     public void subscribe(Observer<? super String> observer) {
         try {

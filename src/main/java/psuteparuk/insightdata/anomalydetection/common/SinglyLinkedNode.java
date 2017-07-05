@@ -1,5 +1,9 @@
 package psuteparuk.insightdata.anomalydetection.common;
 
+/**
+ * A Node representation for a singly-linked list.
+ * @param <T>
+ */
 public class SinglyLinkedNode<T> {
     private T data;
     private SinglyLinkedNode<T> next;

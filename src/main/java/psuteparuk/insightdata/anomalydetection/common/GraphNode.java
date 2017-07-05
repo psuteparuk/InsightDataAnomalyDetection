@@ -3,8 +3,14 @@ package psuteparuk.insightdata.anomalydetection.common;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Node representation of an un-directional graph.
+ * Store its id, data, and neighboring nodes.
+ * Neighboring nodes are stored as a Set of ids.
+ * @param <T>
+ */
 public class GraphNode<T> {
-    final private String id;
+    final private String id; // Uniquely identified a node
     private T data;
     private Set<String> neighborIds;
 
